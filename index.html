@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لعبة الذاكرة - نظام المراحل 🧠</title>
-    <!-- مكتبة القصاصات الملونة الاحتفالية -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -17,10 +16,11 @@
             <h1 id="level-title">المرحلة 1</h1>
         </div>
 
-        <!-- التنقل بين المراحل -->
+        <!-- التنقل بين المراحل المفتوحة فقط -->
         <div class="level-nav">
-            <button class="nav-btn" onclick="changeLevel(-1)">◀ المرحلة السابقة</button>
-            <button class="nav-btn" onclick="changeLevel(1)">المرحلة التالية ▶</button>
+            <button id="btn-prev-lvl" class="nav-btn" onclick="changeLevel(-1)">◀ السابقة</button>
+            <span id="unlocked-info" class="unlocked-info">المرحلة 1 / 20</span>
+            <button id="btn-next-lvl" class="nav-btn" onclick="changeLevel(1)">التالية ▶</button>
         </div>
 
         <!-- لوحة أسرع بطل للمرحلة الحالية -->
@@ -29,7 +29,7 @@
             <div id="lb-record" class="lb-record">لا يوجد رقم قياسي بعد - كن الأول!</div>
         </div>
 
-        <!-- الإحصائيات الحالية -->
+        <!-- الإحصائيات -->
         <div class="stats-container">
             <div class="stat-box">
                 <span class="stat-label">المحاولات</span>
@@ -41,7 +41,7 @@
             </div>
             <div class="stat-box">
                 <span class="stat-label">الأزواج</span>
-                <span id="matches-count" class="stat-value">0 / 5</span>
+                <span id="matches-count" class="stat-value">0 / 4</span>
             </div>
         </div>
 
