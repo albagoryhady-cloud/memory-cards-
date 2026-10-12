@@ -26,19 +26,105 @@ body {
 }
 
 h1 {
-    margin-bottom: 15px;
-    font-size: 2rem;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #1e1e2f;
+    color: #fff;
+    padding: 15px;
+}
+
+.card {
+    background-color: #2a2a40;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+}
+
+.level-header {
+    margin-bottom: 10px;
+}
+
+.theme-badge {
+    background: #4e54c8;
+    color: #ffdd59;
+    font-weight: bold;
+    font-size: 0.85rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+h1 {
+    font-size: 1.8rem;
     color: #8f94fb;
     text-shadow: 0 0 10px rgba(143, 148, 251, 0.3);
+}
+
+.level-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.nav-btn {
+    flex: 1;
+    padding: 6px 10px;
+    background: #1e1e2f;
+    border: 1px solid #4e54c8;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.nav-btn:active {
+    background: #4e54c8;
+}
+
+/* لوحة الرقم القياسي للمرحلة */
+.leaderboard-box {
+    background: #1e1e2f;
+    border: 1px dashed #ffdd59;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+}
+
+.lb-title {
+    color: #aaa;
+    margin-bottom: 3px;
+}
+
+.lb-record {
+    color: #2ed573;
+    font-weight: bold;
 }
 
 .stats-container {
     display: flex;
     justify-content: space-between;
     background: #1e1e2f;
-    padding: 10px 15px;
+    padding: 8px 15px;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .stat-box {
@@ -48,32 +134,29 @@ h1 {
 }
 
 .stat-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #aaa;
-    margin-bottom: 2px;
 }
 
 .stat-value {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: bold;
     color: #ffdd59;
 }
 
-/* شبكة الكروت 4x4 */
+/* شبكة الكروت ديناميكية */
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 15px;
     perspective: 1000px;
 }
 
-/* تصميم الكارت والتأثير 3D */
 .memory-card {
     aspect-ratio: 1;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.5s ease;
+    transition: transform 0.4s ease, box-shadow 0.3s;
     cursor: pointer;
 }
 
@@ -81,9 +164,10 @@ h1 {
     transform: rotateY(180deg);
 }
 
+/* الكروت المتطابقة: تفضل ظاهرة بوضوح وبريق أخضر دون شفافية */
 .memory-card.matched {
-    transform: rotateY(180deg) scale(0.95);
-    opacity: 0.7;
+    transform: rotateY(180deg);
+    opacity: 1 !important;
     cursor: default;
 }
 
@@ -91,7 +175,7 @@ h1 {
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -99,25 +183,28 @@ h1 {
     user-select: none;
 }
 
-/* ظهر الكارت مغلق */
 .card-back {
     background: linear-gradient(135deg, #4e54c8, #8f94fb);
-    font-size: 1.8rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    font-size: 1.5rem;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
 }
 
-/* وجه الكارت مكشوف */
 .card-front {
     background: #1e1e2f;
     border: 2px solid #8f94fb;
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     transform: rotateY(180deg);
+}
+
+.memory-card.matched .card-front {
+    border-color: #2ed573;
+    box-shadow: 0 0 10px rgba(46, 213, 115, 0.6);
 }
 
 .btn {
     width: 100%;
-    padding: 12px;
-    font-size: 1rem;
+    padding: 11px;
+    font-size: 0.95rem;
     border: none;
     border-radius: 10px;
     background: linear-gradient(135deg, #4e54c8, #8f94fb);
@@ -125,7 +212,6 @@ h1 {
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(78, 84, 200, 0.4);
-    transition: transform 0.2s;
 }
 
 .btn:active {
@@ -133,7 +219,7 @@ h1 {
 }
 
 .developer-footer {
-    margin-top: 18px;
+    margin-top: 15px;
     font-size: 0.8rem;
     color: #8f94fb;
     opacity: 0.85;
