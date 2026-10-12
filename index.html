@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تقوية الذاكرة 🧠</title>
+    <!-- مكتبة احتفال الفوز (Confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="card">
+        <h1>لعبة الذاكرة 🧠</h1>
+
+        <!-- لوحة الإحصائيات -->
+        <div class="stats-container">
+            <div class="stat-box">
+                <span class="stat-label">المحاولات</span>
+                <span id="moves-count" class="stat-value">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">الوقت</span>
+                <span id="timer" class="stat-value">00:00</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">الأزواج</span>
+                <span id="matches-count" class="stat-value">0 / 8</span>
+            </div>
+        </div>
+
+        <!-- شبكة الكروت -->
+        <div class="grid-container" id="grid-container"></div>
+
+        <!-- الأزرار -->
+        <div class="controls">
+            <button class="btn" onclick="restartGame()">إعادة اللعب 🔄</button>
+        </div>
+
+        <div class="developer-footer">unset The First Step of H~~H</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
