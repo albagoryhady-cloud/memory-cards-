@@ -1,0 +1,142 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #1e1e2f;
+    color: #fff;
+    padding: 15px;
+}
+
+.card {
+    background-color: #2a2a40;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 15px;
+    font-size: 2rem;
+    color: #8f94fb;
+    text-shadow: 0 0 10px rgba(143, 148, 251, 0.3);
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-between;
+    background: #1e1e2f;
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 2px;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffdd59;
+}
+
+/* شبكة الكروت 4x4 */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+    perspective: 1000px;
+}
+
+/* تصميم الكارت والتأثير 3D */
+.memory-card {
+    aspect-ratio: 1;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+    cursor: pointer;
+}
+
+.memory-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+    transform: rotateY(180deg) scale(0.95);
+    opacity: 0.7;
+    cursor: default;
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+    user-select: none;
+}
+
+/* ظهر الكارت مغلق */
+.card-back {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    font-size: 1.8rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* وجه الكارت مكشوف */
+.card-front {
+    background: #1e1e2f;
+    border: 2px solid #8f94fb;
+    font-size: 2.2rem;
+    transform: rotateY(180deg);
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(78, 84, 200, 0.4);
+    transition: transform 0.2s;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.developer-footer {
+    margin-top: 18px;
+    font-size: 0.8rem;
+    color: #8f94fb;
+    opacity: 0.85;
+    font-family: monospace, sans-serif;
+    direction: ltr !important;
+}
