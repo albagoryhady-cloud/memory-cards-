@@ -1,21 +1,47 @@
-// قائمة الأيقونات (8 أزواج = 16 كارت)
-const emojis = ['🚀', '🍕', '🎮', '🦁', '🌟', '🎨', '💎', '🍦'];
+// تعريف الطوابع (Themes) حسب نطاق المراحل والأيقونات الخاصة بها
+const themes = [
+    {
+        name: "عصور وسطى 🏰",
+        minLevel: 1, maxLevel: 5,
+        emojis: ['🏰', '⚔️', '👑', '🛡️', '🐉', '🐴', '📜', '🏹', '🧙‍♂️', '🪙', '💎', '🔮', '🗡️', '👑', '🗝️']
+    },
+    {
+        name: "أعماق المحيط 🌊",
+        minLevel: 6, maxLevel: 10,
+        emojis: ['🌊', '⛵', '🐙', '🦈', '🐬', '🦀', '⚓', '🏝️', '🐳', '🐠', '🧜‍♀️', '🐚', '🦭', '🪼', '🚢']
+    },
+    {
+        name: "الغابة البرية 🦁",
+        minLevel: 11, maxLevel: 15,
+        emojis: ['🦁', '🐯', '🐘', '🦒', '🐵', '🐍', '🌴', '🦓', '🦏', '🦜', '🦩', '🐆', '🐻', '🐺', '🦉']
+    },
+    {
+        name: "عالم الفضاء 🚀",
+        minLevel: 16, maxLevel: 20,
+        emojis: ['🚀', '🛸', '👨‍🚀', '🪐', '🌙', '⭐', '☄️', '🌌', '👽', '🛰️', '🔭', '☀️', '🌍', '👾', '✨']
+    }
+];
 
+let currentLevel = 1;
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
+let targetPairs = 5; // تبدأ بـ 5 أزواج (10 كروت في المرحلة 1)
 let moves = 0;
 let gameStarted = false;
 let timerInterval = null;
 let secondsElapsed = 0;
 let lockBoard = false;
 
+// عناصر الواجهة
+const levelTitle = document.getElementById('level-title');
+const themeBadge = document.getElementById('theme-badge');
+const lbRecord = document.getElementById('lb-record');
 const gridContainer = document.getElementById('grid-container');
 const movesDisplay = document.getElementById('moves-count');
 const timerDisplay = document.getElementById('timer');
 const matchesDisplay = document.getElementById('matches-count');
 
-// توليد الصوت برمجياً بدون ملفات خارجية
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSound(type) {
@@ -50,12 +76,35 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// إنشاء اللوحة وتخليط الكروت
-function initGame() {
-    cards = [...emojis, ...emojis]; // خلط الأيقونات لعمل 8 أزواج
+// تحضير وتطابق المرحلة
+function initLevel() {
+    // حساب عدد الأزواج (المرحلة 1 = 5 أزواج/10 كروت، المرحلة 2 = 6 أزواج/12 كارت...)
+    targetPairs = 4 + currentLevel;
+    
+    // إيجاد الطابع المناسب للمرحلة
+    let currentTheme = themes.find(t => currentLevel >= t.minLevel && currentLevel <= t.maxLevel);
+    if (!currentTheme) currentTheme = themes[themes.length - 1]; // في حالة تجاوز المرحلة 20
+
+    levelTitle.textContent = `المرحلة ${currentLevel}`;
+    themeBadge.textContent = currentTheme.name;
+
+    // استخراج الإيموجيز المطلوبة لهذه المرحلة
+    const selectedEmojis = currentTheme.emojis.slice(0, targetPairs);
+    cards = [...selectedEmojis, ...selectedEmojis];
     shuffle(cards);
 
+    // ضبط الشبكة برمجياً حسب عدد الكروت
+    const totalCards = cards.length;
+    let cols = 5;
+    if (totalCards <= 10) cols = 5;
+    else if (totalCards <= 12) cols = 4;
+    else if (totalCards <= 16) cols = 4;
+    else if (totalCards <= 20) cols = 5;
+    else cols = 6;
+
+    gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     gridContainer.innerHTML = '';
+
     flippedCards = [];
     matchedPairs = 0;
     moves = 0;
@@ -64,7 +113,7 @@ function initGame() {
     lockBoard = false;
 
     movesDisplay.textContent = moves;
-    matchesDisplay.textContent = `0 / ${emojis.length}`;
+    matchesDisplay.textContent = `0 / ${targetPairs}`;
     timerDisplay.textContent = '00:00';
     clearInterval(timerInterval);
 
@@ -72,7 +121,6 @@ function initGame() {
         const card = document.createElement('div');
         card.classList.add('memory-card');
         card.dataset.emoji = emoji;
-        card.dataset.index = index;
 
         card.innerHTML = `
             <div class="card-face card-back">❓</div>
@@ -82,9 +130,10 @@ function initGame() {
         card.addEventListener('click', flipCard);
         gridContainer.appendChild(card);
     });
+
+    loadLeaderboard();
 }
 
-// خوارزمية الخلط العشوائي (Fisher-Yates)
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -92,7 +141,6 @@ function shuffle(array) {
     }
 }
 
-// عند ضغط الكارت
 function flipCard() {
     if (lockBoard) return;
     if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
@@ -113,7 +161,6 @@ function flipCard() {
     }
 }
 
-// فحص التطابق
 function checkMatch() {
     const [card1, card2] = flippedCards;
     const isMatch = card1.dataset.emoji === card2.dataset.emoji;
@@ -125,24 +172,22 @@ function checkMatch() {
     }
 }
 
-// في حالة المطابقة الصحيحة
 function disableCards() {
     const [card1, card2] = flippedCards;
     card1.classList.add('matched');
     card2.classList.add('matched');
 
     matchedPairs++;
-    matchesDisplay.textContent = `${matchedPairs} / ${emojis.length}`;
+    matchesDisplay.textContent = `${matchedPairs} / ${targetPairs}`;
     playSound('match');
 
     flippedCards = [];
 
-    if (matchedPairs === emojis.length) {
-        handleWin();
+    if (matchedPairs === targetPairs) {
+        handleLevelWin();
     }
 }
 
-// في حالة عدم المطابقة (إعادة القلب)
 function unflipCards() {
     lockBoard = true;
     setTimeout(() => {
@@ -150,10 +195,9 @@ function unflipCards() {
         flippedCards[1].classList.remove('flipped');
         flippedCards = [];
         lockBoard = false;
-    }, 900);
+    }, 800);
 }
 
-// العداد الزمني
 function startTimer() {
     timerInterval = setInterval(() => {
         secondsElapsed++;
@@ -163,23 +207,73 @@ function startTimer() {
     }, 1000);
 }
 
-// الاحتفال بالفوز
-function handleWin() {
+// معالجة الرقم القياسي والـ Leaderboard للمرحلة
+function loadLeaderboard() {
+    const savedRecord = localStorage.getItem(`memory_lb_lvl_${currentLevel}`);
+    if (savedRecord) {
+        const data = JSON.parse(savedRecord);
+        lbRecord.textContent = `👑 ${data.name} - ⏱️ ${data.timeStr} - 🎯 ${data.moves} محاولة`;
+    } else {
+        lbRecord.textContent = "لا يوجد رقم قياسي بعد - كن الأول!";
+    }
+}
+
+function checkAndSaveLeaderboard() {
+    const savedRecord = localStorage.getItem(`memory_lb_lvl_${currentLevel}`);
+    let isNewRecord = false;
+    const timeStr = timerDisplay.textContent;
+
+    if (!savedRecord) {
+        isNewRecord = true;
+    } else {
+        const data = JSON.parse(savedRecord);
+        if (secondsElapsed < data.seconds || (secondsElapsed === data.seconds && moves < data.moves)) {
+            isNewRecord = true;
+        }
+    }
+
+    if (isNewRecord) {
+        setTimeout(() => {
+            const playerName = prompt(`🎉 أداء مذهل! حققت رقماً قياسياً جديداً للمرحلة ${currentLevel}!\nأدخل اسمك لتسجيله في قائمة الأبطال:`) || "بطل مجهول";
+            const newRecord = {
+                name: playerName,
+                seconds: secondsElapsed,
+                timeStr: timeStr,
+                moves: moves
+            };
+            localStorage.setItem(`memory_lb_lvl_${currentLevel}`, JSON.stringify(newRecord));
+            loadLeaderboard();
+        }, 600);
+    }
+}
+
+function handleLevelWin() {
     clearInterval(timerInterval);
     playSound('win');
 
     if (typeof confetti === 'function') {
-        confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+        confetti({ particleCount: 110, spread: 85, origin: { y: 0.6 } });
     }
 
+    checkAndSaveLeaderboard();
+
     setTimeout(() => {
-        alert(`🎉 مبروك! أنهيت اللعبة في ${moves} محاولة وخلال وقت ${timerDisplay.textContent}!`);
-    }, 500);
+        if (confirm(`🎉 أحسنت! أكملت المرحلة ${currentLevel} بنجاح!\nهل تريد الانتقال إلى المرحلة ${currentLevel + 1}؟`)) {
+            currentLevel++;
+            initLevel();
+        }
+    }, 1200);
 }
 
-function restartGame() {
-    initGame();
+function changeLevel(delta) {
+    if (currentLevel + delta < 1) return;
+    currentLevel += delta;
+    initLevel();
 }
 
-// تشغيل اللعبة فور تحميل الصفحة
-initGame();
+function restartLevel() {
+    initLevel();
+}
+
+// بدء التشغيل
+initLevel();
