@@ -1,9 +1,9 @@
-// تعريف الطوابع (Themes) حسب نطاق المراحل والأيقونات الخاصة بها
+// تعريف الطوابع (Themes) لـ 20 مرحلة
 const themes = [
     {
         name: "عصور وسطى 🏰",
         minLevel: 1, maxLevel: 5,
-        emojis: ['🏰', '⚔️', '👑', '🛡️', '🐉', '🐴', '📜', '🏹', '🧙‍♂️', '🪙', '💎', '🔮', '🗡️', '👑', '🗝️']
+        emojis: ['🏰', '⚔️', '👑', '🛡️', '🐉', '🐴', '📜', '🏹', '🧙‍♂️', '🪙', '💎', '🔮', '🗡️', '🗝️', '🔱']
     },
     {
         name: "أعماق المحيط 🌊",
@@ -13,7 +13,7 @@ const themes = [
     {
         name: "الغابة البرية 🦁",
         minLevel: 11, maxLevel: 15,
-        emojis: ['🦁', '🐯', '🐘', '🦒', '🐵', '🐍', '🌴', '🦓', '🦏', '🦜', '🦩', '🐆', '🐻', '🐺', '🦉']
+        emojis: ['🦁', '🐯', '🐘', 'giraffe', '🐵', '🐍', '🌴', '🦓', '🦏', '🦜', '🦩', '🐆', '🐻', '🐺', '🦉']
     },
     {
         name: "عالم الفضاء 🚀",
@@ -22,11 +22,16 @@ const themes = [
     }
 ];
 
+// أقصى عدد مراحل باللعبة
+const MAX_LEVELS = 20;
+
 let currentLevel = 1;
+let maxUnlockedLevel = parseInt(localStorage.getItem('memory_max_unlocked')) || 1;
+
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
-let targetPairs = 5; // تبدأ بـ 5 أزواج (10 كروت في المرحلة 1)
+let targetPairs = 4;
 let moves = 0;
 let gameStarted = false;
 let timerInterval = null;
@@ -36,6 +41,9 @@ let lockBoard = false;
 // عناصر الواجهة
 const levelTitle = document.getElementById('level-title');
 const themeBadge = document.getElementById('theme-badge');
+const unlockedInfo = document.getElementById('unlocked-info');
+const btnPrevLvl = document.getElementById('btn-prev-lvl');
+const btnNextLvl = document.getElementById('btn-next-lvl');
 const lbRecord = document.getElementById('lb-record');
 const gridContainer = document.getElementById('grid-container');
 const movesDisplay = document.getElementById('moves-count');
@@ -76,30 +84,40 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// تحضير وتطابق المرحلة
+// حساب عدد الأزواج بدقة بحد أقصى 15 زوجاً (30 كارت)
+function getPairsForLevel(lvl) {
+    // المرحلة 1: 4 أزواج (8 كروت)
+    // المرحلة 12 فأكثر: 15 زوجاً كحد أقصى (30 كارت)
+    const calculated = 3 + lvl;
+    return Math.min(calculated, 15);
+}
+
 function initLevel() {
-    // حساب عدد الأزواج (المرحلة 1 = 5 أزواج/10 كروت، المرحلة 2 = 6 أزواج/12 كارت...)
-    targetPairs = 4 + currentLevel;
-    
-    // إيجاد الطابع المناسب للمرحلة
+    targetPairs = getPairsForLevel(currentLevel);
+
+    // اختيار الطابع المناسب للمرحلة
     let currentTheme = themes.find(t => currentLevel >= t.minLevel && currentLevel <= t.maxLevel);
-    if (!currentTheme) currentTheme = themes[themes.length - 1]; // في حالة تجاوز المرحلة 20
+    if (!currentTheme) currentTheme = themes[themes.length - 1];
 
     levelTitle.textContent = `المرحلة ${currentLevel}`;
     themeBadge.textContent = currentTheme.name;
+    if (unlockedInfo) unlockedInfo.textContent = `المرحلة ${currentLevel} / ${MAX_LEVELS}`;
 
-    // استخراج الإيموجيز المطلوبة لهذه المرحلة
+    // التحكم في حالة أزرار الأسهم بناءً على المراحل المفتوحة
+    if (btnPrevLvl) btnPrevLvl.disabled = (currentLevel <= 1);
+    if (btnNextLvl) btnNextLvl.disabled = (currentLevel >= maxUnlockedLevel || currentLevel >= MAX_LEVELS);
+
+    // استخراج الكروت المطلوبة
     const selectedEmojis = currentTheme.emojis.slice(0, targetPairs);
     cards = [...selectedEmojis, ...selectedEmojis];
     shuffle(cards);
 
-    // ضبط الشبكة برمجياً حسب عدد الكروت
+    // تقسيم أعمدة الشبكة حسب عدد الكروت
     const totalCards = cards.length;
-    let cols = 5;
-    if (totalCards <= 10) cols = 5;
-    else if (totalCards <= 12) cols = 4;
+    let cols = 4;
+    if (totalCards <= 10) cols = 4;
     else if (totalCards <= 16) cols = 4;
-    else if (totalCards <= 20) cols = 5;
+    else if (totalCards <= 24) cols = 5;
     else cols = 6;
 
     gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -117,7 +135,7 @@ function initLevel() {
     timerDisplay.textContent = '00:00';
     clearInterval(timerInterval);
 
-    cards.forEach((emoji, index) => {
+    cards.forEach((emoji) => {
         const card = document.createElement('div');
         card.classList.add('memory-card');
         card.dataset.emoji = emoji;
@@ -191,8 +209,10 @@ function disableCards() {
 function unflipCards() {
     lockBoard = true;
     setTimeout(() => {
-        flippedCards[0].classList.remove('flipped');
-        flippedCards[1].classList.remove('flipped');
+        if (flippedCards.length === 2) {
+            flippedCards[0].classList.remove('flipped');
+            flippedCards[1].classList.remove('flipped');
+        }
         flippedCards = [];
         lockBoard = false;
     }, 800);
@@ -207,7 +227,6 @@ function startTimer() {
     }, 1000);
 }
 
-// معالجة الرقم القياسي والـ Leaderboard للمرحلة
 function loadLeaderboard() {
     const savedRecord = localStorage.getItem(`memory_lb_lvl_${currentLevel}`);
     if (savedRecord) {
@@ -234,7 +253,7 @@ function checkAndSaveLeaderboard() {
 
     if (isNewRecord) {
         setTimeout(() => {
-            const playerName = prompt(`🎉 أداء مذهل! حققت رقماً قياسياً جديداً للمرحلة ${currentLevel}!\nأدخل اسمك لتسجيله في قائمة الأبطال:`) || "بطل مجهول";
+            const playerName = prompt(`🎉 أداء مذهل! حققت رقماً قياسياً جديداً للمرحلة ${currentLevel}!\nأدخل اسمك لتسجيله في الأبطال:`) || "بطل مجهول";
             const newRecord = {
                 name: playerName,
                 seconds: secondsElapsed,
@@ -243,7 +262,7 @@ function checkAndSaveLeaderboard() {
             };
             localStorage.setItem(`memory_lb_lvl_${currentLevel}`, JSON.stringify(newRecord));
             loadLeaderboard();
-        }, 600);
+        }, 300);
     }
 }
 
@@ -252,22 +271,33 @@ function handleLevelWin() {
     playSound('win');
 
     if (typeof confetti === 'function') {
-        confetti({ particleCount: 110, spread: 85, origin: { y: 0.6 } });
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     }
 
     checkAndSaveLeaderboard();
 
-    setTimeout(() => {
-        if (confirm(`🎉 أحسنت! أكملت المرحلة ${currentLevel} بنجاح!\nهل تريد الانتقال إلى المرحلة ${currentLevel + 1}؟`)) {
+    // فتح المرحلة التالية تلقائياً
+    if (currentLevel < MAX_LEVELS) {
+        if (currentLevel === maxUnlockedLevel) {
+            maxUnlockedLevel++;
+            localStorage.setItem('memory_max_unlocked', maxUnlockedLevel);
+        }
+
+        setTimeout(() => {
             currentLevel++;
             initLevel();
-        }
-    }, 1200);
+        }, 1500);
+    } else {
+        setTimeout(() => {
+            alert('🎉 🏆 أسطورة! أكملت جميع المراحل الـ 20 بنجاح بالكامل!');
+        }, 1000);
+    }
 }
 
 function changeLevel(delta) {
-    if (currentLevel + delta < 1) return;
-    currentLevel += delta;
+    const newLevel = currentLevel + delta;
+    if (newLevel < 1 || newLevel > maxUnlockedLevel || newLevel > MAX_LEVELS) return;
+    currentLevel = newLevel;
     initLevel();
 }
 
@@ -275,5 +305,5 @@ function restartLevel() {
     initLevel();
 }
 
-// بدء التشغيل
+// بدء اللعبة
 initLevel();
