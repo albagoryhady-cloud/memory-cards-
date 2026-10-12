@@ -26,7 +26,7 @@ body {
 }
 
 .level-header {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .theme-badge {
@@ -48,9 +48,16 @@ h1 {
 
 .level-nav {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
     margin-bottom: 10px;
+}
+
+.unlocked-info {
+    font-size: 0.78rem;
+    color: #aaa;
+    font-weight: bold;
 }
 
 .nav-btn {
@@ -63,6 +70,13 @@ h1 {
     font-size: 0.78rem;
     cursor: pointer;
     font-weight: bold;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #444;
 }
 
 .leaderboard-box {
@@ -110,7 +124,7 @@ h1 {
     color: #ffdd59;
 }
 
-/* شبكة الكروت المحسنة للموبايل */
+/* شبكة الكروت المحسنة */
 .grid-container {
     display: grid;
     gap: 6px;
@@ -119,7 +133,6 @@ h1 {
     width: 100%;
 }
 
-/* تصميم الكارت وتراكب الوجوه */
 .memory-card {
     aspect-ratio: 1;
     position: relative;
@@ -148,7 +161,7 @@ h1 {
     align-items: center;
     justify-content: center;
     backface-visibility: hidden;
-    -webkit-backface-visibility: hidden; /* ضروري جداً للموبايل */
+    -webkit-backface-visibility: hidden;
     user-select: none;
 }
 
@@ -162,7 +175,7 @@ h1 {
 .card-front {
     background: #1e1e2f;
     border: 2px solid #8f94fb;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     transform: rotateY(180deg);
     -webkit-transform: rotateY(180deg);
     z-index: 1;
